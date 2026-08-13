@@ -8,6 +8,10 @@
 
 *Hasan Zafar × Bilal Junejo*
 
+![The same frame, six years apart](docs/assets/shots/2019-vs-2026.png)
+
+<sub><b>Left:</b> exactly what our Java build drew in 2019. <b>Right:</b> the same map, the same tile sheet, the same physics — with the lights on. It is one keypress between them.</sub>
+
 </div>
 
 ---
@@ -110,6 +114,9 @@ got added is everything that sits on top:
   brickwork. Bloom on top.
 - **Weather and depth.** Rain, a moon, drifting parallax cell blocks with lit windows,
   and a searchlight sweeping the yard.
+
+  ![The yard at night](docs/assets/shots/the-yard.png)
+
 - **Feel.** Squash and stretch, landing dust, coyote time and a jump buffer, screen
   shake, hit-stop on explosions, a proper death burst.
 - **A real ending**, instead of `System.exit(0)`.
