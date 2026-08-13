@@ -96,6 +96,15 @@
   function fit() {
     if (!game) return;
     var stage = $('stage');
+    var cv = $('screen');
+
+    // Collapse the canvas before measuring. It is a grid item inside a flex
+    // item, so leaving it at its old size lets the previous frame's dimensions
+    // hold the stage open — and each call would then measure its own output
+    // and grow again.
+    cv.style.width = '0px';
+    cv.style.height = '0px';
+
     var w = stage.clientWidth, h = stage.clientHeight;
     if (!w || !h) return;
 
@@ -103,9 +112,9 @@
     var vw = Math.min(560, Math.floor(w / scale));
     var vh = Math.min(320, Math.floor(h / scale));
     vw -= vw % 2; vh -= vh % 2;
+    if (vw < 80 || vh < 60) { scale = 1; vw = Math.min(560, w); vh = Math.min(320, h); }
 
     game.resize(vw, vh);
-    var cv = $('screen');
     cv.style.width = (vw * scale) + 'px';
     cv.style.height = (vh * scale) + 'px';
   }
