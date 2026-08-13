@@ -265,12 +265,13 @@
       this.d.push({ x: Math.random(), y: Math.random(), s: 0.5 + Math.random() * 0.9, len: 3 + Math.random() * 7 });
     }
   }
-  Rain.prototype.draw = function (c, w, h, t, camX, camY, wind) {
+  Rain.prototype.draw = function (c, w, h, t, camX, camY, wind, count) {
+    var n = Math.min(count === undefined ? this.d.length : count, this.d.length);
     c.save();
     c.strokeStyle = 'rgba(150,185,225,.30)';
     c.lineWidth = 1;
     c.beginPath();
-    for (var i = 0; i < this.d.length; i++) {
+    for (var i = 0; i < n; i++) {
       var r = this.d[i];
       // parallax with the camera so the rain belongs to the world
       var x = ((r.x * w + camX * 0.35 * r.s + t * wind * 40 * r.s) % (w + 20) + w + 20) % (w + 20) - 10;

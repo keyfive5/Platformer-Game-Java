@@ -40,9 +40,9 @@
 
   // ── per-level mood (remaster only) ─────────────────────────────────
   var MOOD = [
-    { ambient: [124, 130, 152], rain: 150, wind: 1.1, sky: ['#0a1024', '#16233f', '#2b3c5e'] },
-    { ambient: [128, 120, 138], rain: 70,  wind: 0.5, sky: ['#0b0a18', '#181530', '#2e2748'] },
-    { ambient: [138, 126, 130], rain: 40,  wind: 0.3, sky: ['#12101e', '#2a1f33', '#5c3a45'] }
+    { ambient: [124, 130, 152], rain: 160, wind: 1.1, sky: ['#0a1024', '#16233f', '#2b3c5e'] },
+    { ambient: [128, 120, 138], rain: 80,  wind: 0.5, sky: ['#0b0a18', '#181530', '#2e2748'] },
+    { ambient: [138, 126, 130], rain: 45,  wind: 0.3, sky: ['#12101e', '#2a1f33', '#5c3a45'] }
   ];
 
   /* ════════════════════════════════════════════════════════════════════
@@ -302,7 +302,7 @@
     this.canFilter = typeof this.bctx.filter === 'string';
 
     this.particles = new fx.Particles();
-    this.rain = new fx.Rain(190);
+    this.rain = new fx.Rain(160);      // MOOD.rain thins this out per level
 
     this.keys = {};
     this.touch = { left: false, right: false, jump: false };
@@ -886,7 +886,7 @@
 
     // ── remaster ─────────────────────────────────────────────────────
     this.drawSky(c, camX, camY, mood);
-    this.rain.draw(c, this.vw, this.vh, this.t, camX, camY, mood.wind);
+    this.rain.draw(c, this.vw, this.vh, this.t, camX, camY, mood.wind, mood.rain);
 
     c.drawImage(L.canvas, -camX, -(L.pxH - camY));
 
