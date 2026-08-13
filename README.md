@@ -189,6 +189,21 @@ node tools/devserver.mjs
 **The 2019 Java version** — see [`original/README.md`](original/README.md). It needs a
 libGDX 1.9 classpath and the missing audio file; the instructions are there.
 
+### Deploying
+
+Pages serves the **`gh-pages`** branch, which holds the contents of `docs/` at its root.
+This repository's Actions token is read-only, so CI validates but does not publish. To
+push a new build of the site:
+
+```bash
+git subtree push --prefix docs origin gh-pages
+```
+
+CI ([`.github/workflows/pages.yml`](.github/workflows/pages.yml)) regenerates `levels.js`
+from the `.tmx` files and fails if the committed copy has drifted, syntax-checks the game
+sources, and asserts all three maps are still 62 × 37 with a reachable door — so the site
+can never quietly stop matching the 2019 originals.
+
 ### Controls
 
 <kbd>←</kbd> <kbd>→</kbd> move · <kbd>↑</kbd> jump (hold for height) · <kbd>R</kbd> restart ·

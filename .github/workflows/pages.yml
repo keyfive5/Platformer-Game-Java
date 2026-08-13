@@ -1,46 +1,51 @@
-name: Publish the remaster
+name: Check the remaster
+
+# Publishing itself is not done here. Pages serves the gh-pages branch, and
+# this repository's Actions token is read-only, so the workflow cannot push to
+# it. What CI can usefully do is guarantee the site never disagrees with the
+# 2019 map files, and that the game sources parse.
+#
+# To publish (see README, "Deploying"):
+#   git subtree push --prefix docs origin gh-pages
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
-  contents: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
+  contents: read
 
 jobs:
-  publish:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Rebuild levels.js from the original 2019 Tiled maps
+      - name: levels.js still matches the original 2019 Tiled maps
         run: |
           node tools/tmx2js.mjs
           git diff --exit-code docs/js/levels.js \
             || (echo "::error::docs/js/levels.js is out of date - run node tools/tmx2js.mjs" && exit 1)
 
-      - name: Syntax-check the game sources
+      - name: Game sources parse
         run: for f in docs/js/*.js; do node --check "$f"; done
 
-      # Pages serves the gh-pages branch, so docs/ is published as the site root.
-      # Done with plain git rather than the Pages API, which the default token
-      # is not allowed to call on this repo.
-      - name: Publish docs/ to gh-pages
+      - name: The three maps are intact
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          rm -rf .publish && mkdir .publish
-          cp -r docs/. .publish/
-          touch .publish/.nojekyll
-          cd .publish
-          git init -q -b gh-pages
-          git add -A
-          git commit -q -m "Publish ${GITHUB_SHA::7}"
-          git push -q --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+          node -e '
+            globalThis.window = globalThis;   // levels.js expects a browser global
+            require("./docs/js/levels.js");
+            const L = globalThis.PR.LEVELS;
+            if (L.length !== 3) throw new Error("expected 3 levels, got " + L.length);
+            for (const lv of L) {
+              const doors = [];
+              lv.gids.forEach((layer, li) => layer.forEach((row, y) => row.forEach((g, x) => {
+                if (g === 31 || g === 11) doors.push([li, x, y]);
+              })));
+              if (!doors.length) throw new Error(lv.name + " has no door - the level is unfinishable");
+              if (lv.width !== 62 || lv.height !== 37) throw new Error(lv.name + " changed size");
+              console.log(lv.name.padEnd(14), lv.width + "x" + lv.height, "door at", doors[0].slice(1).join(","));
+            }
+          '
