@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prison Revelations 2.0 — a 2019 Java platformer, remastered</title>
+<meta name="description" content="Prison Revelations 2.0 — a libGDX platformer built by Hasan Zafar and Bilal Junejo in 2019, rebuilt for the browser from the original Tiled maps and pixel art.">
+<meta name="theme-color" content="#0b0d14">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Prison Revelations 2.0">
+<meta property="og:description" content="A Java platformer two friends built in 2019, rebuilt pixel-for-pixel for the browser. Same maps. Same art. Same physics.">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%230b0d14'/><rect x='3' y='2' width='2' height='12' fill='%23f2b544'/><rect x='7' y='2' width='2' height='12' fill='%23f2b544'/><rect x='11' y='2' width='2' height='12' fill='%23f2b544'/></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="is-booting">
+
+<div id="app">
+
+  <!-- ══ BOOT ══════════════════════════════════════════════════════════ -->
+  <section class="screen screen--boot" data-screen="boot">
+    <div class="boot">
+      <div class="boot__bars"><i></i><i></i><i></i></div>
+      <p class="boot__label">loading the yard<span class="dots"><i>.</i><i>.</i><i>.</i></span></p>
+    </div>
+  </section>
+
+  <!-- ══ TITLE ═════════════════════════════════════════════════════════ -->
+  <section class="screen screen--title" data-screen="title" hidden>
+    <div class="title">
+      <p class="title__eyebrow">2019 &nbsp;·&nbsp; libGDX &nbsp;·&nbsp; two kids, one keyboard</p>
+      <h1 class="title__name">
+        <span class="title__word">Prison</span>
+        <span class="title__word">Revelations</span>
+        <span class="title__ver">2.0</span>
+      </h1>
+      <p class="title__by">Hasan&nbsp;Zafar &nbsp;×&nbsp; Bilal&nbsp;Junejo</p>
+
+      <p class="title__blurb">
+        Three levels. One prisoner named Porter. Every tile, every spike and every
+        cruel jump is loaded straight out of the <code>.tmx</code> files we drew in
+        2019 — nothing was redesigned. Only the light was turned on.
+      </p>
+
+      <div class="title__actions">
+        <button class="btn btn--primary" data-action="play">
+          <span class="btn__key">↵</span> Escape the prison
+        </button>
+        <button class="btn" data-action="levels">Levels</button>
+        <button class="btn" data-action="how">Controls</button>
+      </div>
+
+      <div class="title__meta">
+        <span><b id="stat-best">—</b> best escape</span>
+        <span><b id="stat-runs">0</b> attempts</span>
+        <span><b id="stat-deaths">0</b> respawns</span>
+      </div>
+
+      <p class="title__hint">
+        Press <kbd>T</kbd> at any time to drop the remaster and see the raw 2019 build.
+      </p>
+    </div>
+  </section>
+
+  <!-- ══ LEVEL SELECT ══════════════════════════════════════════════════ -->
+  <section class="screen screen--menu" data-screen="levels" hidden>
+    <div class="panel">
+      <h2 class="panel__title">Levels</h2>
+      <ul class="levels" id="level-list"></ul>
+      <button class="btn" data-action="back">Back</button>
+    </div>
+  </section>
+
+  <!-- ══ CONTROLS ══════════════════════════════════════════════════════ -->
+  <section class="screen screen--menu" data-screen="how" hidden>
+    <div class="panel">
+      <h2 class="panel__title">Controls</h2>
+      <dl class="keys">
+        <div><dt><kbd>←</kbd><kbd>→</kbd> <span class="or">or</span> <kbd>A</kbd><kbd>D</kbd></dt><dd>Move</dd></div>
+        <div><dt><kbd>↑</kbd> <span class="or">or</span> <kbd>W</kbd> <span class="or">or</span> <kbd>Space</kbd></dt><dd>Jump — hold it longer to go higher</dd></div>
+        <div><dt><kbd>R</kbd></dt><dd>Restart the level</dd></div>
+        <div><dt><kbd>P</kbd> <span class="or">/</span> <kbd>Esc</kbd></dt><dd>Pause</dd></div>
+        <div><dt><kbd>T</kbd></dt><dd>Toggle the original 2019 build</dd></div>
+        <div><dt><kbd>M</kbd></dt><dd>Mute everything — music starts off, turn it on when paused</dd></div>
+        <div><dt><kbd>F</kbd></dt><dd>Fullscreen</dd></div>
+      </dl>
+      <div class="tips">
+        <p><b>Green slime</b> launches you. <b>Red bombs</b> blow the floor out from under you.
+           <b>Spikes</b> and <b>water</b> send you back to the start of the level. Walk into a
+           <b>door</b> to move on.</p>
+      </div>
+      <button class="btn" data-action="back">Back</button>
+    </div>
+  </section>
+
+  <!-- ══ GAME ══════════════════════════════════════════════════════════ -->
+  <section class="screen screen--game" data-screen="game" hidden>
+
+    <div class="stage" id="stage">
+      <canvas id="screen" width="320" height="180"></canvas>
+
+      <div class="hud">
+        <div class="hud__left">
+          <span class="hud__lvl" id="hud-level">1 / 3</span>
+          <span class="hud__name" id="hud-name">The Yard</span>
+        </div>
+        <div class="hud__right">
+          <span class="hud__time" id="hud-time">0:00.00</span>
+          <span class="hud__deaths"><i id="hud-deaths">0</i> respawns</span>
+        </div>
+      </div>
+
+      <div class="era" id="era-badge" hidden>
+        <b>BUILD 2019</b><span>raw libGDX render · no lights · no assists</span>
+      </div>
+
+      <div class="banner" id="banner" hidden>
+        <span class="banner__n" id="banner-n"></span>
+        <span class="banner__t" id="banner-t"></span>
+        <span class="banner__s" id="banner-s"></span>
+      </div>
+
+      <div class="toast" id="toast" hidden></div>
+
+      <!-- touch -->
+      <div class="touch" id="touch" hidden>
+        <div class="touch__pad">
+          <button class="touch__btn" data-touch="left" aria-label="Left">◀</button>
+          <button class="touch__btn" data-touch="right" aria-label="Right">▶</button>
+        </div>
+        <button class="touch__btn touch__btn--jump" data-touch="jump" aria-label="Jump">▲</button>
+      </div>
+
+      <!-- pause -->
+      <div class="overlay" id="pause" hidden>
+        <div class="card">
+          <h2>Paused</h2>
+          <div class="card__row">
+            <button class="btn btn--primary" data-action="resume">Resume</button>
+            <button class="btn" data-action="restart">Restart level</button>
+            <button class="btn" data-action="quit">Leave</button>
+          </div>
+          <label class="switch"><input type="checkbox" id="opt-era"> <span>Original 2019 build</span></label>
+          <label class="switch"><input type="checkbox" id="opt-crt" checked> <span>Scanlines &amp; bloom</span></label>
+          <label class="switch"><input type="checkbox" id="opt-audio" checked> <span>Sound effects</span></label>
+          <label class="switch"><input type="checkbox" id="opt-music"> <span>Music <em>(off by default)</em></span></label>
+        </div>
+      </div>
+
+      <!-- win -->
+      <div class="overlay" id="win" hidden>
+        <div class="card card--win">
+          <p class="card__kicker">Level 3 cleared</p>
+          <h2>You escaped.</h2>
+          <p class="card__line">The Java version printed <code>"You escaped!! Yay!"</code> to the console
+             and called <code>System.exit(0)</code>. That was the whole ending. It felt enormous.</p>
+          <div class="score">
+            <div><b id="win-time">—</b><span>escape time</span></div>
+            <div><b id="win-deaths">—</b><span>respawns</span></div>
+            <div><b id="win-best">—</b><span>your best</span></div>
+          </div>
+          <div class="card__row">
+            <button class="btn btn--primary" data-action="again">Run it again</button>
+            <button class="btn" data-action="quit">Back to title</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="stage__foot">
+      <button class="linkish" data-action="quit">← title</button>
+      <span class="sep">·</span>
+      <a href="https://github.com/keyfive5/Platformer-Game-Java" target="_blank" rel="noopener">source</a>
+      <span class="sep">·</span>
+      <span class="foot-hint"><kbd>T</kbd> 2019 build &nbsp; <kbd>R</kbd> restart &nbsp; <kbd>P</kbd> pause</span>
+    </p>
+  </section>
+
+</div>
+
+<script src="js/levels.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

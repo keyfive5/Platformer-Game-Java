@@ -1,0 +1,20 @@
+# Build output from the 2019 Eclipse/Gradle workspace
+bin/
+build/
+.gradle/
+
+# Copyrighted audio the 2019 build loaded but that was never ours to publish.
+# See original/README.md — drop any mp3 with this name into core/assets to run it.
+*.mp3
+
+# Local dev screenshots
+.shots/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+node_modules/
+
+# session-local preview config
+.claude/
