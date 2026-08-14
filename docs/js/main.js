@@ -25,6 +25,19 @@
   stats.runs = stats.runs || 0;
   stats.deaths = stats.deaths || 0;
   stats.levelBest = stats.levelBest || {};
+
+  // Builds before v2 painted every overlay on load (the [hidden] CSS bug), which
+  // left the pause menu's checkboxes invisible but clickable — a stray click
+  // could silently turn on the 2019 render or the music and persist it. Any
+  // preference written by those builds is untrustworthy, so reset the toggles
+  // and keep only the things worth keeping.
+  if (stats.v !== 2) {
+    delete stats.era;
+    stats.sfx = true;
+    stats.music = false;
+    stats.v = 2;
+    save(stats);
+  }
   // sound effects on, music off, unless the player has said otherwise
   if (stats.sfx === undefined) stats.sfx = true;
   if (stats.music === undefined) stats.music = false;
@@ -127,9 +140,11 @@
     save(stats);
     $('win').hidden = true;
     $('pause').hidden = true;
-    game.era = !!stats.era;
-    $('era-badge').hidden = !game.era;
-    $('opt-era').checked = game.era;
+    // The remaster is always what you get on a fresh run. The 2019 render is a
+    // thing you reach for with T, not a setting that follows you around.
+    game.era = false;
+    $('era-badge').hidden = true;
+    $('opt-era').checked = false;
     fit();
     game.start(levelIndex || 0);
   }
@@ -151,8 +166,6 @@
   function toggleEra() {
     if (!game) return;
     game.era = !game.era;
-    stats.era = game.era;
-    save(stats);
     $('era-badge').hidden = !game.era;
     $('opt-era').checked = game.era;
     PR.audio.play('era');
