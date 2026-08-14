@@ -21,6 +21,12 @@
 
 * { box-sizing: border-box; }
 
+/* The UA rule for [hidden] is display:none, but it loses to any author rule
+   that sets display — and .overlay/.banner/.era/.touch all do. Without this,
+   every overlay in the document paints on load, and the win card (last in the
+   DOM) covers the page reading "You escaped." before you have played a frame. */
+[hidden] { display: none !important; }
+
 html, body {
   height: 100%;
   margin: 0;
@@ -70,7 +76,6 @@ body::after {
   padding: clamp(16px, 4vw, 40px);
   animation: fade .45s ease both;
 }
-.screen[hidden] { display: none; }
 @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 /* ── boot ─────────────────────────────────────────────────────────── */
